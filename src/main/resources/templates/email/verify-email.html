@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{email/layout}">
+<body>
+<th:block layout:fragment="content">
+
+    <p>Xin chào <strong th:text="${fullName}">Nguyen Minh Dao</strong>,</p>
+
+    <p>Cảm ơn bạn đã đăng ký <strong>Job Hunt Tracker</strong>.</p>
+    <p>Vui lòng xác nhận địa chỉ email để bắt đầu sử dụng.</p>
+
+    <a th:href="${verifyUrl}" class="btn btn-primary">
+        ✉ Xác nhận Email
+    </a>
+
+    <div class="note">
+        <p>Link có hiệu lực trong <strong>24 giờ</strong>.</p>
+        <p>Nếu bạn không đăng ký, hãy bỏ qua email này.</p>
+    </div>
+
+</th:block>
+</body>
+</html>

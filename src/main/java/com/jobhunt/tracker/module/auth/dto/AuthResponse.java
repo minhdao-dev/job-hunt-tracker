@@ -8,7 +8,7 @@ public record AuthResponse(
         String fullName,
         String accessToken,
         String tokenType,
-        long expiresIn
+        long accessTokenExpiresIn
 ) {
     public static AuthResponse of(
             UUID userId,
