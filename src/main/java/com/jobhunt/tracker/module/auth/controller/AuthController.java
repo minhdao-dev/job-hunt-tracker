@@ -64,8 +64,10 @@ public class AuthController {
             HttpServletResponse response) {
 
         String refreshToken = cookieService.getRefreshToken(request)
-                .orElseThrow(() -> com.jobhunt.tracker.common.exception
-                        .AppException.unauthorized("Refresh token not found"));
+                .orElseThrow(() ->
+                        com.jobhunt.tracker.common.exception.AppException
+                                .unauthorized("Refresh token not found")
+                );
 
         TokenResponse tokenResponse = authService.refresh(refreshToken);
 
@@ -82,8 +84,10 @@ public class AuthController {
             HttpServletRequest request,
             HttpServletResponse response) {
 
+        String accessToken = extractBearerToken(request);
+
         cookieService.getRefreshToken(request)
-                .ifPresent(authService::logout);
+                .ifPresent(rt -> authService.logout(rt, accessToken));
 
         cookieService.clearRefreshTokenCookie(response);
 
@@ -98,8 +102,10 @@ public class AuthController {
             HttpServletRequest request,
             HttpServletResponse response) {
 
+        String accessToken = extractBearerToken(request);
+
         cookieService.getRefreshToken(request)
-                .ifPresent(authService::logoutAll);
+                .ifPresent(rt -> authService.logoutAll(rt, accessToken));
 
         cookieService.clearRefreshTokenCookie(response);
 
@@ -114,6 +120,7 @@ public class AuthController {
             @Valid @RequestBody VerifyEmailRequest request) {
 
         authService.verifyEmail(request.token());
+
         return ResponseEntity.ok(
                 AppResponse.success("Email verified successfully")
         );
@@ -128,7 +135,8 @@ public class AuthController {
 
         return ResponseEntity.ok(
                 AppResponse.success(
-                        "If your email is registered, you will receive a reset link shortly"
+                        "If your email is registered, " +
+                                "you will receive a reset link shortly"
                 )
         );
     }
@@ -139,8 +147,11 @@ public class AuthController {
             @Valid @RequestBody ResetPasswordRequest request) {
 
         authService.resetPassword(request);
+
         return ResponseEntity.ok(
-                AppResponse.success("Password reset successfully. Please login again.")
+                AppResponse.success(
+                        "Password reset successfully. Please login again."
+                )
         );
     }
 
@@ -148,12 +159,22 @@ public class AuthController {
     @Operation(summary = "Change password (authenticated)")
     public ResponseEntity<AppResponse<Void>> changePassword(
             @Valid @RequestBody ChangePasswordRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal UserDetails userDetails,
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse) {
 
-        authService.changePassword(userDetails.getUsername(), request);
+        String accessToken = extractBearerToken(httpRequest);
+
+        authService.changePassword(
+                userDetails.getUsername(), request, accessToken
+        );
+
+        cookieService.clearRefreshTokenCookie(httpResponse);
 
         return ResponseEntity.ok(
-                AppResponse.success("Password changed successfully. Please login again.")
+                AppResponse.success(
+                        "Password changed successfully. Please login again."
+                )
         );
     }
 
@@ -170,5 +191,13 @@ public class AuthController {
                                 "a verification email will be sent shortly"
                 )
         );
+    }
+
+    private String extractBearerToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        return null;
     }
 }

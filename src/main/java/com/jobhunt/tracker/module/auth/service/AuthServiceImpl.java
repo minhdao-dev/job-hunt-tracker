@@ -3,6 +3,7 @@ package com.jobhunt.tracker.module.auth.service;
 import com.jobhunt.tracker.common.exception.AppException;
 import com.jobhunt.tracker.config.mail.EmailService;
 import com.jobhunt.tracker.config.security.JwtService;
+import com.jobhunt.tracker.config.security.TokenBlacklistService;
 import com.jobhunt.tracker.module.auth.dto.*;
 import com.jobhunt.tracker.module.auth.entity.OtpToken;
 import com.jobhunt.tracker.module.auth.entity.RefreshToken;
@@ -31,11 +32,12 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final OtpTokenRepository otpTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final OtpTokenRepository otpTokenRepository;
     private final EmailService emailService;
+    private final TokenBlacklistService blacklistService;
 
     @Value("${app.jwt.refresh-expiration}")
     private long refreshExpiration;
@@ -57,11 +59,15 @@ public class AuthServiceImpl implements AuthService {
 
         user = userRepository.save(user);
 
-        String verifyToken = createOtp(user,
+        String verifyToken = createOtp(
+                user,
                 OtpToken.OtpType.EMAIL_VERIFICATION,
-                LocalDateTime.now().plusHours(24));
+                LocalDateTime.now().plusHours(24)
+        );
 
-        emailService.sendVerificationEmail(user.getEmail(), user.getFullName(), verifyToken);
+        emailService.sendVerificationEmail(
+                user.getEmail(), user.getFullName(), verifyToken
+        );
 
         log.info("New user registered: {}", user.getEmail());
 
@@ -95,7 +101,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public TokenResponse refresh(String refreshToken) {
-
         Optional<RefreshToken> validToken =
                 refreshTokenRepository.findValidToken(refreshToken);
 
@@ -106,22 +111,27 @@ public class AuthServiceImpl implements AuthService {
             refreshTokenRepository.save(token);
 
             User user = token.getUser();
-            String newAccessToken = jwtService.generateToken(user.getId(), user.getEmail());
+            String newAccessToken = jwtService.generateToken(
+                    user.getId(), user.getEmail()
+            );
             String newRefreshToken = createRefreshToken(user);
 
             log.info("Token refreshed for user: {}", user.getEmail());
 
-            return TokenResponse.of(newAccessToken, newRefreshToken,
-                    jwtService.getExpirationTime());
+            return TokenResponse.of(
+                    newAccessToken, newRefreshToken, jwtService.getExpirationTime()
+            );
         }
 
         refreshTokenRepository.findByToken(refreshToken)
                 .ifPresent(revokedToken -> {
                     UUID userId = revokedToken.getUser().getId();
                     refreshTokenRepository.revokeAllByUserId(userId);
-                    log.warn("Refresh token reuse detected for user: {}. " +
+                    log.warn(
+                            "Refresh token reuse detected for user: {}. " +
                                     "All sessions have been revoked.",
-                            revokedToken.getUser().getEmail());
+                            revokedToken.getUser().getEmail()
+                    );
                 });
 
         throw AppException.unauthorized("Invalid or expired refresh token");
@@ -129,18 +139,20 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void logout(String refreshToken) {
+    public void logout(String refreshToken, String accessToken) {
         refreshTokenRepository.findValidToken(refreshToken)
                 .ifPresent(token -> {
                     token.revoke();
                     refreshTokenRepository.save(token);
                     log.info("User logged out: {}", token.getUser().getEmail());
                 });
+
+        blacklistAccessToken(accessToken);
     }
 
     @Override
     @Transactional
-    public void logoutAll(String refreshToken) {
+    public void logoutAll(String refreshToken, String accessToken) {
         refreshTokenRepository.findValidToken(refreshToken)
                 .ifPresent(token -> {
                     refreshTokenRepository.revokeAllByUserId(
@@ -149,6 +161,8 @@ public class AuthServiceImpl implements AuthService {
                     log.info("All devices logged out: {}",
                             token.getUser().getEmail());
                 });
+
+        blacklistAccessToken(accessToken);
     }
 
     @Override
@@ -177,13 +191,16 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void forgotPassword(String email) {
-
         userRepository.findByEmail(email).ifPresent(user -> {
-            String token = createOtp(user,
+            String token = createOtp(
+                    user,
                     OtpToken.OtpType.RESET_PASSWORD,
-                    LocalDateTime.now().plusMinutes(15));
+                    LocalDateTime.now().plusMinutes(15)
+            );
 
-            emailService.sendResetPasswordEmail(user.getEmail(), user.getFullName(), token);
+            emailService.sendResetPasswordEmail(
+                    user.getEmail(), user.getFullName(), token
+            );
 
             log.info("Reset password email sent to: {}", email);
         });
@@ -216,22 +233,32 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void changePassword(String email, ChangePasswordRequest request) {
+    public void changePassword(
+            String email,
+            ChangePasswordRequest request,
+            String accessToken) {
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> AppException.notFound("User not found"));
 
-        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+        if (!passwordEncoder.matches(
+                request.currentPassword(), user.getPasswordHash())) {
             throw AppException.badRequest("Current password is incorrect");
         }
 
-        if (passwordEncoder.matches(request.newPassword(), user.getPasswordHash())) {
-            throw AppException.badRequest("New password must be different from current password");
+        if (passwordEncoder.matches(
+                request.newPassword(), user.getPasswordHash())) {
+            throw AppException.badRequest(
+                    "New password must be different from current password"
+            );
         }
 
         user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
 
         refreshTokenRepository.revokeAllByUserId(user.getId());
+
+        blacklistAccessToken(accessToken);
 
         log.info("Password changed for user: {}", email);
     }
@@ -240,7 +267,6 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void resendVerificationEmail(String email) {
         userRepository.findByEmail(email).ifPresent(user -> {
-
             if (user.getIsVerified()) {
                 throw AppException.badRequest("Email already verified");
             }
@@ -250,11 +276,15 @@ public class AuthServiceImpl implements AuthService {
                     OtpToken.OtpType.EMAIL_VERIFICATION
             );
 
-            String token = createOtp(user,
+            String token = createOtp(
+                    user,
                     OtpToken.OtpType.EMAIL_VERIFICATION,
-                    LocalDateTime.now().plusHours(24));
+                    LocalDateTime.now().plusHours(24)
+            );
 
-            emailService.sendVerificationEmail(user.getEmail(), user.getFullName(), token);
+            emailService.sendVerificationEmail(
+                    user.getEmail(), user.getFullName(), token
+            );
 
             log.info("Verification email resent to: {}", email);
         });
@@ -291,7 +321,11 @@ public class AuthServiceImpl implements AuthService {
         return tokenValue;
     }
 
-    private String createOtp(User user, OtpToken.OtpType type, LocalDateTime expiresAt) {
+    private String createOtp(
+            User user,
+            OtpToken.OtpType type,
+            LocalDateTime expiresAt) {
+
         otpTokenRepository.invalidateAllByUserIdAndType(user.getId(), type);
 
         String token = UUID.randomUUID().toString();
@@ -304,5 +338,21 @@ public class AuthServiceImpl implements AuthService {
 
         otpTokenRepository.save(otp);
         return token;
+    }
+
+    private void blacklistAccessToken(String accessToken) {
+        if (accessToken == null || accessToken.isBlank()) {
+            return;
+        }
+
+        if (!jwtService.isTokenValid(accessToken)) {
+            return;
+        }
+
+        String jti = jwtService.extractJti(accessToken);
+        long ttl = jwtService.getRemainingTtlMillis(accessToken);
+        blacklistService.blacklist(jti, ttl);
+
+        log.debug("Access token added to blacklist. jti={}", jti);
     }
 }
