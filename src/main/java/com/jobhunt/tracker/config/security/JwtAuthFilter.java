@@ -24,6 +24,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final TokenBlacklistService blacklistService;
 
     @Override
     protected void doFilterInternal(
@@ -42,6 +43,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String token = authHeader.substring(7);
 
         if (!jwtService.isTokenValid(token)) {
+            log.debug("JWT invalid or expired, skipping authentication");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String jti = jwtService.extractJti(token);
+        if (blacklistService.isBlacklisted(jti)) {
+            log.warn("Blacklisted access token used. jti={}, path={}",
+                    jti, request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }

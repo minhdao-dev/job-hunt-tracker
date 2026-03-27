@@ -3,15 +3,16 @@ package com.jobhunt.tracker.module.auth.service;
 import com.jobhunt.tracker.module.auth.dto.*;
 
 public interface AuthService {
+
     AuthResult register(RegisterRequest request);
 
     AuthResult login(LoginRequest request);
 
     TokenResponse refresh(String refreshToken);
 
-    void logout(String refreshToken);
+    void logout(String refreshToken, String accessToken);
 
-    void logoutAll(String refreshToken);
+    void logoutAll(String refreshToken, String accessToken);
 
     void verifyEmail(String token);
 
@@ -19,7 +20,7 @@ public interface AuthService {
 
     void resetPassword(ResetPasswordRequest request);
 
-    void changePassword(String email, ChangePasswordRequest request);
+    void changePassword(String email, ChangePasswordRequest request, String accessToken);
 
     void resendVerificationEmail(String email);
 }
