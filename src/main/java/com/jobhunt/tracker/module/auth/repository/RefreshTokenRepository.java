@@ -19,7 +19,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
             """)
     Optional<RefreshToken> findValidToken(String token);
 
-    // Revoke tất cả token của user — dùng khi logout all devices
     @Modifying
     @Query("""
             UPDATE RefreshToken r
@@ -29,7 +28,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
             """)
     void revokeAllByUserId(UUID userId);
 
-    // Xóa token hết hạn — dùng cho scheduled cleanup
     @Modifying
     @Query("""
             DELETE FROM RefreshToken r
@@ -37,4 +35,10 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
                OR r.isRevoked = true
             """)
     void deleteExpiredAndRevoked();
+
+    @Query("""
+            SELECT r FROM RefreshToken r
+            WHERE r.token = :token
+            """)
+    Optional<RefreshToken> findByToken(String token);
 }

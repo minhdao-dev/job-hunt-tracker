@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -139,6 +141,34 @@ public class AuthController {
         authService.resetPassword(request);
         return ResponseEntity.ok(
                 AppResponse.success("Password reset successfully. Please login again.")
+        );
+    }
+
+    @PutMapping("/change-password")
+    @Operation(summary = "Change password (authenticated)")
+    public ResponseEntity<AppResponse<Void>> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        authService.changePassword(userDetails.getUsername(), request);
+
+        return ResponseEntity.ok(
+                AppResponse.success("Password changed successfully. Please login again.")
+        );
+    }
+
+    @PostMapping("/resend-verification")
+    @Operation(summary = "Resend verification email")
+    public ResponseEntity<AppResponse<Void>> resendVerification(
+            @Valid @RequestBody ForgotPasswordRequest request) {
+
+        authService.resendVerificationEmail(request.email());
+
+        return ResponseEntity.ok(
+                AppResponse.success(
+                        "If your email is registered and not verified, " +
+                                "a verification email will be sent shortly"
+                )
         );
     }
 }

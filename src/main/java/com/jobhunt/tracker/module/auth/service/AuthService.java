@@ -18,4 +18,8 @@ public interface AuthService {
     void forgotPassword(String email);
 
     void resetPassword(ResetPasswordRequest request);
+
+    void changePassword(String email, ChangePasswordRequest request);
+
+    void resendVerificationEmail(String email);
 }
