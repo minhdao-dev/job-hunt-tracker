@@ -31,6 +31,9 @@ public class User extends BaseEntity {
     @Column(length = 500)
     private String avatarUrl;
 
+    @Column
+    private String pendingEmail;
+
     @Column(nullable = false)
     @Builder.Default
     private Boolean isActive = true;
