@@ -38,4 +38,12 @@ public interface ReminderRepository extends JpaRepository<Reminder, UUID> {
               AND r.deletedAt IS NULL
             """)
     List<Reminder> findPendingReminders(LocalDateTime now);
+
+    @Query("""
+        SELECT COUNT(r) FROM Reminder r
+        WHERE r.job.user.id = :userId
+          AND r.isSent = false
+          AND r.deletedAt IS NULL
+        """)
+    long countPendingByUserId(UUID userId);
 }

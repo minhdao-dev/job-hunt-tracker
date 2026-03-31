@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,4 +26,12 @@ public interface OfferRepository extends JpaRepository<Offer, UUID> {
               AND o.deletedAt IS NULL
             """)
     boolean existsByJobId(UUID jobId);
+
+    @Query("""
+            SELECT o.decision, COUNT(o) FROM Offer o
+            WHERE o.job.user.id = :userId
+              AND o.deletedAt IS NULL
+            GROUP BY o.decision
+            """)
+    List<Object[]> countByDecision(UUID userId);
 }
