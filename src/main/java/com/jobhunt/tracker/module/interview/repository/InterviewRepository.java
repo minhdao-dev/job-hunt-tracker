@@ -29,4 +29,27 @@ public interface InterviewRepository extends JpaRepository<Interview, UUID> {
               AND i.deletedAt IS NULL
             """)
     Optional<Interview> findByIdAndJobIdAndUserId(UUID id, UUID jobId, UUID userId);
+
+    @Query("""
+            SELECT i.result, COUNT(i) FROM Interview i
+            WHERE i.job.user.id = :userId
+              AND i.deletedAt IS NULL
+            GROUP BY i.result
+            """)
+    List<Object[]> countByResult(UUID userId);
+
+    @Query("""
+            SELECT i.interviewType, COUNT(i) FROM Interview i
+            WHERE i.job.user.id = :userId
+              AND i.deletedAt IS NULL
+            GROUP BY i.interviewType
+            """)
+    List<Object[]> countByType(UUID userId);
+
+    @Query("""
+            SELECT COUNT(DISTINCT i.job.id) FROM Interview i
+            WHERE i.job.user.id = :userId
+              AND i.deletedAt IS NULL
+            """)
+    long countDistinctJobsWithInterview(UUID userId);
 }

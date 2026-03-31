@@ -61,4 +61,36 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
               AND j.deletedAt IS NULL
             """)
     List<JobApplication> findStaleJobs(List<JobStatus> statuses);
+
+    @Query("""
+            SELECT j.status, COUNT(j) FROM JobApplication j
+            WHERE j.user.id = :userId
+              AND j.deletedAt IS NULL
+            GROUP BY j.status
+            """)
+    List<Object[]> countByStatus(UUID userId);
+
+    @Query("""
+            SELECT j.source, COUNT(j) FROM JobApplication j
+            WHERE j.user.id = :userId
+              AND j.deletedAt IS NULL
+            GROUP BY j.source
+            """)
+    List<Object[]> countBySource(UUID userId);
+
+    @Query("""
+            SELECT j.priority, COUNT(j) FROM JobApplication j
+            WHERE j.user.id = :userId
+              AND j.deletedAt IS NULL
+            GROUP BY j.priority
+            """)
+    List<Object[]> countByPriority(UUID userId);
+
+    @Query("""
+            SELECT COUNT(j) FROM JobApplication j
+            WHERE j.user.id = :userId
+              AND j.deletedAt IS NULL
+              AND j.status IN ('APPLIED', 'INTERVIEWING', 'OFFERED')
+            """)
+    long countActiveJobs(UUID userId);
 }
