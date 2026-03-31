@@ -1,0 +1,82 @@
+:root {
+    --bg: #0a0a0a;
+    --panel: #111111;
+    --panel2: #161616;
+    --border: #1f1f1f;
+    --border2: #2a2a2a;
+    --accent: #7c6ff7;
+    --accent2: #a78bfa;
+    --accent-dim: rgba(124,111,247,0.12);
+    --text: #ededed;
+    --text2: #a1a1a1;
+    --text3: #666666;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+}
+
+body.light {
+    --bg: #fafafa;
+    --panel: #ffffff;
+    --panel2: #f5f5f5;
+    --border: #e5e5e5;
+    --border2: #d4d4d4;
+    --accent: #6366f1;
+    --accent2: #7c3aed;
+    --accent-dim: rgba(99,102,241,0.08);
+    --text: #0a0a0a;
+    --text2: #525252;
+    --text3: #a3a3a3;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --warning: #d97706;
+}
+
+.theme-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text2);
+    font-family: 'IBM Plex Sans', sans-serif;
+    transition: all 0.15s;
+    width: 100%;
+}
+
+.theme-btn:hover {
+    border-color: var(--border2);
+    color: var(--text);
+}
+
+.theme-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+.theme-toggle-icon {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 999;
+    width: 40px;
+    height: 40px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text2);
+}
+
+.theme-toggle-icon:hover {
+    border-color: var(--accent);
+    color: var(--accent2);
+    transform: rotate(20deg);
+}
+
+.theme-toggle-icon svg { width: 17px; height: 17px; }

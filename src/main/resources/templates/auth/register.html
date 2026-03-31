@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | Job Hunt Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:wght@400;700&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <style>
+        body {
+            flex-direction: row-reverse;
+        }
+
+        .right {
+            border-left: none;
+            border-right: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+<button class="theme-toggle-icon" onclick="Theme.toggle()">
+    <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+    </svg>
+</button>
+
+<!-- LEFT: Form -->
+<div class="left">
+    <div class="form-box">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <span class="brand-name">JOB HUNT TRACKER</span>
+        </div>
+
+        <h1 class="form-title">Create your account</h1>
+        <p class="form-subtitle">Free forever. No credit card required.</p>
+
+        <div id="error-box" class="error-box"></div>
+        <div id="success-box" class="success-box"></div>
+
+        <form onsubmit="handleRegister(event)">
+            <div class="field">
+                <label>Full name</label>
+                <input type="text" id="fullName" placeholder="Nguyen Van A" required>
+            </div>
+            <div class="field">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="you@example.com" required autocomplete="email">
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Min. 8 characters" required minlength="8">
+                <p class="hint">At least 8 characters</p>
+            </div>
+            <button type="submit" class="btn" id="btn">Create account</button>
+        </form>
+
+        <div class="divider">or</div>
+        <p class="switch">Already have an account? <a href="/login">Sign in</a></p>
+    </div>
+</div>
+
+<!-- RIGHT: Banner -->
+<div class="right">
+    <div class="corner-tl"></div>
+    <div class="corner-br"></div>
+    <div class="right-content">
+        <p class="banner-tag">Get started in 30 seconds</p>
+        <h2 class="banner-title">
+            One place for<br>
+            your entire<br>
+            <span>job search</span>
+        </h2>
+        <p class="banner-desc">
+            From the first application to the final offer — stay organized
+            and never miss a follow-up.
+        </p>
+        <div class="steps">
+            <div class="step">
+                <span class="step-num">01</span>
+                <p class="step-text"><strong>Track applications</strong> — log every job with status, salary, and notes.
+                </p>
+            </div>
+            <div class="step">
+                <span class="step-num">02</span>
+                <p class="step-text"><strong>Manage interviews</strong> — record rounds, questions, and answers.</p>
+            </div>
+            <div class="step">
+                <span class="step-num">03</span>
+                <p class="step-text"><strong>Get reminders</strong> — never let a hot application go cold.</p>
+            </div>
+        </div>
+    </div>
+    <div id="particles"></div>
+</div>
+
+<script th:src="@{/js/theme.js}"></script>
+<script th:src="@{/js/auth.js}"></script>
+<script th:src="@{/js/particles.js}"></script>
+<script>
+    if (Auth.isLoggedIn()) window.location.href = '/dashboard';
+
+    async function handleRegister(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn');
+        const errBox = document.getElementById('error-box');
+        const okBox = document.getElementById('success-box');
+
+        btn.disabled = true;
+        btn.textContent = 'Creating account...';
+        errBox.style.display = 'none';
+        okBox.style.display = 'none';
+
+        try {
+            const res = await fetch('/api/v1/auth/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    fullName: document.getElementById('fullName').value,
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value
+                })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                const msg = data.errors
+                    ? Object.values(data.errors).join(', ')
+                    : (data.detail || 'Registration failed');
+                errBox.textContent = msg;
+                errBox.style.display = 'block';
+                return;
+            }
+
+            Auth.setToken(data.data.accessToken);
+            okBox.textContent = 'Account created! Redirecting...';
+            okBox.style.display = 'block';
+            setTimeout(() => window.location.href = '/dashboard', 1000);
+        } catch {
+            errBox.textContent = 'Something went wrong. Please try again.';
+            errBox.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Create account';
+        }
+    }
+</script>
+</body>
+</html>
