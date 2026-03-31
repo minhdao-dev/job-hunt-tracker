@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{email/layout}">
+<body>
+<th:block layout:fragment="content">
+    <p>Xin chào <strong th:text="${fullName}">Nguyen Minh Dao</strong>,</p>
+    <p>Bạn có một nhắc nhở cho vị trí <strong th:text="${position}">Java Developer</strong>:</p>
+    <p th:text="${message}" style="padding: 12px; background: #f4f4f5; border-radius: 6px;"></p>
+    <div class="note">
+        <p>Chúc bạn may mắn trong quá trình ứng tuyển!</p>
+    </div>
+</th:block>
+</body>
+</html>

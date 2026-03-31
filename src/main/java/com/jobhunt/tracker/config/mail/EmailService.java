@@ -67,6 +67,32 @@ public class EmailService {
         );
     }
 
+    @Async
+    public void sendReminderEmail(String toEmail, String fullName,
+                                  String position, String message) {
+        Context context = new Context();
+        context.setVariable("fullName", fullName);
+        context.setVariable("position", position);
+        context.setVariable("message", message != null ? message : "Đừng quên follow up nhé!");
+
+        String content = templateEngine.process("email/reminder", context);
+
+        sendHtmlEmail(toEmail, "Nhắc nhở - " + position + " | Job Hunt Tracker", content);
+    }
+
+    @Async
+    public void sendAutoReminderEmail(String toEmail, String fullName,
+                                      String position, int daysSinceUpdate) {
+        Context context = new Context();
+        context.setVariable("fullName", fullName);
+        context.setVariable("position", position);
+        context.setVariable("daysSinceUpdate", daysSinceUpdate);
+
+        String content = templateEngine.process("email/auto-reminder", context);
+
+        sendHtmlEmail(toEmail, "Cập nhật tiến độ - " + position + " | Job Hunt Tracker", content);
+    }
+
     private void sendHtmlEmail(String to,
                                String subject,
                                String htmlContent) {

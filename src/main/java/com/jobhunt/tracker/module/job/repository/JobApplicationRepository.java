@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,4 +53,12 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
               AND j.deletedAt IS NULL
             """)
     Optional<JobApplication> findByIdAndUserId(UUID id, UUID userId);
+
+    @Query("""
+            SELECT j FROM JobApplication j
+            JOIN FETCH j.user
+            WHERE j.status IN :statuses
+              AND j.deletedAt IS NULL
+            """)
+    List<JobApplication> findStaleJobs(List<JobStatus> statuses);
 }

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{email/layout}">
+<body>
+<th:block layout:fragment="content">
+    <p>Xin chào <strong th:text="${fullName}">Nguyen Minh Dao</strong>,</p>
+    <p>
+        Vị trí <strong th:text="${position}">Java Developer</strong> của bạn
+        chưa có cập nhật trong <strong th:text="${daysSinceUpdate}">7</strong> ngày.
+    </p>
+    <p>Đừng quên follow up với nhà tuyển dụng nhé!</p>
+    <div class="note">
+        <p>Bạn có thể tắt thông báo này trong phần cài đặt tài khoản.</p>
+    </div>
+</th:block>
+</body>
+</html>
