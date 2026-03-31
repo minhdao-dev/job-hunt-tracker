@@ -180,6 +180,12 @@ public class AuthServiceImpl implements AuthService {
 
         User user = otp.getUser();
         user.setIsVerified(true);
+
+        if (user.getPendingEmail() != null) {
+            user.setEmail(user.getPendingEmail());
+            user.setPendingEmail(null);
+        }
+
         userRepository.save(user);
 
         otp.markAsUsed();
@@ -341,7 +347,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private void blacklistAccessToken(String accessToken) {
-        if (accessToken == null || accessToken.isBlank()) {
+        if (accessToken.isBlank()) {
             return;
         }
 
