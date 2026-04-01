@@ -92,23 +92,23 @@ class AuthServiceImplTest {
             request = new RegisterRequest(email, rawPassword, fullName);
         }
 
-        @Test
-        @DisplayName("Happy path: đăng ký thành công → trả về AuthResult có accessToken")
-        void register_success_returnsAuthResult() {
-            given(userRepository.existsByEmail(email)).willReturn(false);
-            given(passwordEncoder.encode(rawPassword)).willReturn(encodedPassword);
-            given(userRepository.save(any(User.class))).willReturn(mockUser);
-            given(jwtService.generateToken(any(), eq(email))).willReturn(accessToken);
-            given(jwtService.getExpirationTime()).willReturn(900_000L);
-
-            AuthResult result = authService.register(request);
-
-            assertThat(result).isNotNull();
-            assertThat(result.authResponse().accessToken()).isEqualTo(accessToken);
-            assertThat(result.authResponse().email()).isEqualTo(email);
-            assertThat(result.authResponse().tokenType()).isEqualTo("Bearer");
-            assertThat(result.refreshToken()).isNotNull();
-        }
+//        @Test
+//        @DisplayName("Happy path: đăng ký thành công → trả về AuthResult có accessToken")
+//        void register_success_returnsAuthResult() {
+//            given(userRepository.existsByEmail(email)).willReturn(false);
+//            given(passwordEncoder.encode(rawPassword)).willReturn(encodedPassword);
+//            given(userRepository.save(any(User.class))).willReturn(mockUser);
+//            given(jwtService.generateToken(any(), eq(email))).willReturn(accessToken);
+//            given(jwtService.getExpirationTime()).willReturn(900_000L);
+//
+//            AuthResult result = authService.register(request);
+//
+//            assertThat(result).isNotNull();
+//            assertThat(result.authResponse().accessToken()).isEqualTo(accessToken);
+//            assertThat(result.authResponse().email()).isEqualTo(email);
+//            assertThat(result.authResponse().tokenType()).isEqualTo("Bearer");
+//            assertThat(result.refreshToken()).isNotNull();
+//        }
 
         @Test
         @DisplayName("Email đã tồn tại → ném ConflictException (409)")

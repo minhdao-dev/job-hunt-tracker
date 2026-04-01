@@ -38,6 +38,10 @@ public class SecurityConfig {
                                 "/jobs/**",
                                 "/companies",
                                 "/settings",
+                                "/",
+                                "/verify-email",
+                                "/forgot-password",
+                                "reset-password",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**"

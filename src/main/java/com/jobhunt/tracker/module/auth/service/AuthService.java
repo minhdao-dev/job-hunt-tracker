@@ -4,7 +4,7 @@ import com.jobhunt.tracker.module.auth.dto.*;
 
 public interface AuthService {
 
-    AuthResult register(RegisterRequest request);
+    void register(RegisterRequest request);
 
     AuthResult login(LoginRequest request);
 

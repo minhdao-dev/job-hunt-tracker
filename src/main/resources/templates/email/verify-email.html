@@ -5,19 +5,65 @@
 <body>
 <th:block layout:fragment="content">
 
-    <p>Xin chào <strong th:text="${fullName}">Nguyen Minh Dao</strong>,</p>
+    <!-- Icon -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td align="center" style="padding-bottom:24px">
+                <div style="display:inline-block;width:60px;height:60px;background-color:#eef2ff;border-radius:12px;font-size:28px;text-align:center;line-height:60px">
+                    ✉️
+                </div>
+            </td>
+        </tr>
+    </table>
 
-    <p>Cảm ơn bạn đã đăng ký <strong>Job Hunt Tracker</strong>.</p>
-    <p>Vui lòng xác nhận địa chỉ email để bắt đầu sử dụng.</p>
+    <!-- Title -->
+    <h1 style="margin:0 0 6px 0;font-size:22px;font-weight:700;color:#111827;letter-spacing:-0.02em;line-height:1.3;text-align:left">
+        Xác nhận email của bạn
+    </h1>
+    <p style="margin:0 0 18px 0;font-size:14px;color:#6b7280;line-height:1.6">
+        Xin chào <strong style="color:#111827" th:text="${fullName}">bạn</strong>,
+    </p>
 
-    <a th:href="${verifyUrl}" class="btn btn-primary">
-        ✉ Xác nhận Email
-    </a>
+    <p style="margin:0 0 24px 0;font-size:14px;color:#374151;line-height:1.8">
+        Cảm ơn bạn đã đăng ký <strong style="color:#6366f1">Job Hunt Tracker</strong>.
+        Vui lòng xác nhận địa chỉ email để kích hoạt tài khoản.
+    </p>
 
-    <div class="note">
-        <p>Link có hiệu lực trong <strong>24 giờ</strong>.</p>
-        <p>Nếu bạn không đăng ký, hãy bỏ qua email này.</p>
-    </div>
+    <!-- Button row - full width centered -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td align="center" style="padding:4px 0 28px 0">
+                <a th:href="${verifyUrl}" target="_blank"
+                   style="display:inline-block;background-color:#6366f1;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;padding:14px 40px;border-radius:8px;text-align:center;min-width:180px">
+                    ✅ &nbsp;Xác nhận Email
+                </a>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Divider -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td style="border-top:1px solid #e5e7eb;padding-bottom:20px"></td>
+        </tr>
+    </table>
+
+    <!-- Note -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td style="background-color:#f5f3ff;border-left:4px solid #6366f1;border-radius:6px;padding:14px 16px">
+                <p style="margin:0 0 5px 0;font-size:13px;color:#374151;line-height:1.7">⏱ Link có hiệu lực trong
+                    <strong>24 giờ</strong>.</p>
+                <p style="margin:0;font-size:13px;color:#374151;line-height:1.7">🔒 Nếu bạn không đăng ký tài khoản này,
+                    hãy bỏ qua email.</p>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Fallback -->
+    <p style="margin:20px 0 0 0;font-size:11px;color:#9ca3af;line-height:1.6;text-align:center;word-break:break-all">
+        Nút không hoạt động? Truy cập link: <a th:href="${verifyUrl}" th:text="${verifyUrl}" style="color:#6366f1"></a>
+    </p>
 
 </th:block>
 </body>

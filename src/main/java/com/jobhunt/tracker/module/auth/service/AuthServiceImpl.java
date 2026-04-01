@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResult register(RegisterRequest request) {
+    public void register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw AppException.conflict(
                     "Email already exists: " + request.email()
@@ -70,8 +70,6 @@ public class AuthServiceImpl implements AuthService {
         );
 
         log.info("New user registered: {}", user.getEmail());
-
-        return buildAuthResult(user);
     }
 
     @Override
@@ -90,6 +88,12 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> AppException.notFound("User not found"));
+
+        if (!user.getIsVerified()) {
+            throw AppException.forbidden(
+                    "Email not verified. Please check your inbox and verify your email before logging in."
+            );
+        }
 
         refreshTokenRepository.revokeAllByUserId(user.getId());
 

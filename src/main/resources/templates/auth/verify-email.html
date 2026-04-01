@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email | Job Hunt Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(124, 111, 247, 0.07) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 52px 44px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .card.success::before {
+            opacity: 1;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .icon-wrap {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 32px;
+            transition: all 0.3s;
+        }
+
+        .icon-wrap.loading {
+            background: var(--accent-dim);
+            border: 1px solid var(--glass-border);
+        }
+
+        .icon-wrap.success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .icon-wrap.error {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border2);
+            border-top-color: var(--accent2);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--muted, #7070a0);
+            line-height: 1.75;
+            margin-bottom: 32px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'IBM Plex Sans', sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(124, 111, 247, 0.35);
+        }
+
+        .btn:hover {
+            background: var(--accent-bright, #c4b5fd);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(124, 111, 247, 0.5);
+        }
+
+        .countdown {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--text3);
+            margin-top: 14px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 36px;
+        }
+
+        .brand-logo {
+            width: 30px;
+            height: 30px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-logo svg {
+            width: 15px;
+            height: 15px;
+            color: white;
+        }
+
+        .brand-name {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            color: var(--text2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="card" id="card">
+    <div class="brand">
+        <div class="brand-logo">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+        </div>
+        <span class="brand-name">JOB HUNT TRACKER</span>
+    </div>
+
+    <div class="icon-wrap loading" id="icon-wrap">
+        <div class="spinner"></div>
+    </div>
+    <div class="title" id="title">Verifying your email...</div>
+    <div class="subtitle" id="subtitle">Please wait a moment.</div>
+</div>
+
+<script th:src="@{/js/theme.js}"></script>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    async function verify() {
+        if (!token) {
+            showError('🔗', 'Invalid link', 'This verification link is missing a token. Please request a new one from the login page.');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/v1/auth/verify-email', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({token})
+            });
+
+            if (res.ok) {
+                showSuccess();
+            } else {
+                const data = await res.json();
+                showError('❌', 'Verification failed', data.detail || 'This link may have expired or already been used.');
+            }
+        } catch {
+            showError('⚠️', 'Connection error', 'Could not connect to the server. Please try again.');
+        }
+    }
+
+    function showSuccess() {
+        const card = document.getElementById('card');
+        card.classList.add('success');
+
+        document.getElementById('icon-wrap').className = 'icon-wrap success';
+        document.getElementById('icon-wrap').innerHTML = '✅';
+        document.getElementById('title').textContent = 'Email verified!';
+        document.getElementById('subtitle').innerHTML =
+            'Your email has been verified successfully.<br>You can now sign in to your account.';
+
+        // Button đăng nhập ngay
+        const btn = document.createElement('a');
+        btn.href = '/login?verified=true';
+        btn.className = 'btn';
+        btn.innerHTML = `Sign in now
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>`;
+        card.appendChild(btn);
+
+        // Countdown auto redirect
+        let count = 5;
+        const countdown = document.createElement('div');
+        countdown.className = 'countdown';
+        countdown.textContent = `Redirecting to login in ${count}s...`;
+        card.appendChild(countdown);
+
+        const interval = setInterval(() => {
+            count--;
+            if (count <= 0) {
+                clearInterval(interval);
+                window.location.href = '/login?verified=true';
+            } else {
+                countdown.textContent = `Redirecting to login in ${count}s...`;
+            }
+        }, 1000);
+    }
+
+    function showError(emoji, title, message) {
+        document.getElementById('icon-wrap').className = 'icon-wrap error';
+        document.getElementById('icon-wrap').innerHTML = emoji;
+        document.getElementById('title').textContent = title;
+        document.getElementById('subtitle').textContent = message;
+
+        const card = document.getElementById('card');
+        const btn = document.createElement('a');
+        btn.href = '/login';
+        btn.className = 'btn';
+        btn.textContent = '← Back to login';
+        card.appendChild(btn);
+    }
+
+    verify();
+</script>
+</body>
+</html>

@@ -1,35 +1,65 @@
 :root {
-    --bg: #0a0a0a;
-    --panel: #111111;
-    --panel2: #161616;
-    --border: #1f1f1f;
-    --border2: #2a2a2a;
+    --bg: #080810;
+    --panel: #0f0f1a;
+    --panel2: #14141f;
+    --border: #1e1e30;
+    --border2: #282840;
     --accent: #7c6ff7;
     --accent2: #a78bfa;
-    --accent-dim: rgba(124,111,247,0.12);
-    --text: #ededed;
-    --text2: #a1a1a1;
-    --text3: #666666;
+    --accent-bright: #c4b5fd;
+    --accent-dim: rgba(124, 111, 247, 0.12);
+    --accent-glow: rgba(124, 111, 247, 0.25);
+    --text: #eeeef5;
+    --text2: #9898b8;
+    --text3: #55556a;
+    --muted: #7070a0;
+    --dim: rgba(255, 255, 255, 0.04);
     --success: #22c55e;
     --danger: #ef4444;
     --warning: #f59e0b;
+
+    --glass-bg: rgba(15, 15, 26, 0.7);
+    --glass-border: rgba(124, 111, 247, 0.15);
+    --glass-blur: 20px;
+
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --shadow-accent: 0 8px 32px rgba(124, 111, 247, 0.2);
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+
+    --transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 body.light {
-    --bg: #fafafa;
+    --bg: #f0eff8;
     --panel: #ffffff;
-    --panel2: #f5f5f5;
-    --border: #e5e5e5;
-    --border2: #d4d4d4;
+    --panel2: #f5f4fc;
+    --border: #e2e0f0;
+    --border2: #ccc9e8;
     --accent: #6366f1;
     --accent2: #7c3aed;
-    --accent-dim: rgba(99,102,241,0.08);
-    --text: #0a0a0a;
-    --text2: #525252;
-    --text3: #a3a3a3;
+    --accent-bright: #5b51e8;
+    --accent-dim: rgba(99, 102, 241, 0.08);
+    --accent-glow: rgba(99, 102, 241, 0.15);
+    --text: #0f0f1a;
+    --text2: #44445a;
+    --text3: #9090a8;
+    --muted: #6060a0;
+    --dim: rgba(0, 0, 0, 0.03);
     --success: #16a34a;
     --danger: #dc2626;
     --warning: #d97706;
+
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(99, 102, 241, 0.15);
+
+    --shadow-sm: 0 2px 8px rgba(99, 102, 241, 0.08);
+    --shadow-md: 0 8px 32px rgba(99, 102, 241, 0.12);
+    --shadow-accent: 0 8px 32px rgba(99, 102, 241, 0.2);
 }
 
 .theme-btn {
@@ -39,44 +69,54 @@ body.light {
     padding: 7px 10px;
     background: var(--panel2);
     border: 1px solid var(--border);
-    border-radius: 7px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 13px;
     color: var(--text2);
     font-family: 'IBM Plex Sans', sans-serif;
-    transition: all 0.15s;
+    transition: all var(--transition);
     width: 100%;
 }
 
 .theme-btn:hover {
-    border-color: var(--border2);
+    border-color: var(--accent-dim);
     color: var(--text);
+    background: var(--accent-dim);
 }
 
-.theme-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+.theme-btn svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
 
 .theme-toggle-icon {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top: 16px;
+    right: 16px;
     z-index: 999;
     width: 40px;
     height: 40px;
-    background: var(--panel);
-    border: 1px solid var(--border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--transition);
     color: var(--text2);
 }
 
 .theme-toggle-icon:hover {
     border-color: var(--accent);
     color: var(--accent2);
-    transform: rotate(20deg);
+    box-shadow: var(--shadow-accent);
+    transform: rotate(20deg) scale(1.05);
 }
 
-.theme-toggle-icon svg { width: 17px; height: 17px; }
+.theme-toggle-icon svg {
+    width: 17px;
+    height: 17px;
+}

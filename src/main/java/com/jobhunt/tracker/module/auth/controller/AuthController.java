@@ -26,19 +26,15 @@ public class AuthController {
 
     @PostMapping("/register")
     @Operation(summary = "Register new account")
-    public ResponseEntity<AppResponse<AuthResponse>> register(
-            @Valid @RequestBody RegisterRequest request,
-            HttpServletResponse response) {
+    public ResponseEntity<AppResponse<Void>> register(
+            @Valid @RequestBody RegisterRequest request) {
 
-        AuthResult result = authService.register(request);
-
-        cookieService.setRefreshTokenCookie(response, result.refreshToken());
+        authService.register(request);
 
         return ResponseEntity
                 .status(201)
-                .body(AppResponse.created(
-                        "Registration successful",
-                        result.authResponse()
+                .body(AppResponse.success(
+                        "Registration successful. Please check your email to verify your account."
                 ));
     }
 
