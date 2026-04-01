@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Job Detail</title>
+    <link rel="stylesheet" th:href="@{/css/job-detail.css}">
+</head>
+<body>
+<th:block layout:fragment="content">
+
+    <a href="/jobs" class="back-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back to jobs
+    </a>
+
+    <div class="detail-layout">
+
+        <!-- ── LEFT PANEL ── -->
+        <div class="detail-left">
+
+            <div class="detail-header-card">
+                <div class="detail-position" id="detail-position">Loading...</div>
+                <div class="detail-company">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span id="detail-company">—</span>
+                </div>
+                <div class="detail-badges" id="detail-badges"></div>
+                <div class="detail-actions">
+                    <button class="btn-action btn-edit" onclick="openEditJob()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Edit
+                    </button>
+                    <button class="btn-action btn-delete" onclick="deleteJob()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-title">Details</div>
+                <div class="info-row">
+                    <span class="info-label">Applied</span>
+                    <span class="info-value" id="info-applied">—</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Source</span>
+                    <span class="info-value" id="info-source">—</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Work type</span>
+                    <span class="info-value" id="info-remote">—</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Salary</span>
+                    <span class="info-value" id="info-salary">—</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Job URL</span>
+                    <span class="info-value" id="info-url">—</span>
+                </div>
+            </div>
+
+            <div class="status-select-wrap">
+                <div class="status-select-title">Change status</div>
+                <div class="status-options">
+                    <button class="status-option APPLIED" data-status="APPLIED" onclick="changeStatus('APPLIED')"><span
+                            class="status-dot"></span>Applied
+                    </button>
+                    <button class="status-option INTERVIEWING" data-status="INTERVIEWING"
+                            onclick="changeStatus('INTERVIEWING')"><span class="status-dot"></span>Interviewing
+                    </button>
+                    <button class="status-option OFFERED" data-status="OFFERED" onclick="changeStatus('OFFERED')"><span
+                            class="status-dot"></span>Offered
+                    </button>
+                    <button class="status-option REJECTED" data-status="REJECTED" onclick="changeStatus('REJECTED')">
+                        <span class="status-dot"></span>Rejected
+                    </button>
+                    <button class="status-option GHOSTED" data-status="GHOSTED" onclick="changeStatus('GHOSTED')"><span
+                            class="status-dot"></span>Ghosted
+                    </button>
+                    <button class="status-option WITHDRAWN" data-status="WITHDRAWN" onclick="changeStatus('WITHDRAWN')">
+                        <span class="status-dot"></span>Withdrawn
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── RIGHT PANEL ── -->
+        <div class="detail-right">
+            <div class="tabs-container">
+                <div class="tabs-nav">
+                    <button class="tab-btn active" id="tab-btn-interviews" onclick="switchTab('interviews')">
+                        Interviews <span class="tab-count" id="tab-interviews-count"></span>
+                    </button>
+                    <button class="tab-btn" id="tab-btn-offer" onclick="switchTab('offer')">
+                        Offer <span class="tab-count" id="tab-offer-count"></span>
+                    </button>
+                    <button class="tab-btn" id="tab-btn-reminders" onclick="switchTab('reminders')">
+                        Reminders <span class="tab-count" id="tab-reminders-count"></span>
+                    </button>
+                    <button class="tab-btn" id="tab-btn-notes" onclick="switchTab('notes')">Notes</button>
+                    <button class="tab-btn" id="tab-btn-history" onclick="switchTab('history')">History</button>
+                </div>
+
+                <div class="tab-panel active" id="tab-interviews">
+                    <th:block th:replace="~{fragments/interview-section :: interviews}"></th:block>
+                </div>
+
+                <div class="tab-panel" id="tab-offer">
+                    <th:block th:replace="~{fragments/offer-section :: offer}"></th:block>
+                </div>
+
+                <div class="tab-panel" id="tab-reminders">
+                    <th:block th:replace="~{fragments/reminder-section :: reminders}"></th:block>
+                </div>
+
+                <div class="tab-panel" id="tab-notes">
+                    <div class="section-header">
+                        <span class="section-title">Notes</span>
+                        <button class="btn-add" onclick="openEditJob()">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Edit
+                        </button>
+                    </div>
+                    <div class="notes-box empty" id="detail-notes">Loading...</div>
+                </div>
+
+                <div class="tab-panel" id="tab-history">
+                    <div class="section-header">
+                        <span class="section-title">Status history</span>
+                    </div>
+                    <div class="history-timeline" id="history-timeline">
+                        <div class="tab-empty"><strong>Loading...</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MODALS ── -->
+
+    <!-- Interview Modal -->
+    <div class="modal-overlay" id="interview-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <span class="modal-title" id="interview-modal-title">Add Interview</span>
+                <button class="modal-close" onclick="closeModal('interview-modal')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="interview-modal-error" class="modal-error-box" style="display:none"></div>
+                <form id="interview-modal-form" onsubmit="return false">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Round</label>
+                            <input type="number" id="iv-round" min="1" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select id="iv-type">
+                                <option value="PHONE_SCREENING">Phone Screening</option>
+                                <option value="TECHNICAL" selected>Technical</option>
+                                <option value="ONLINE">Online</option>
+                                <option value="ONSITE">Onsite</option>
+                                <option value="HR">HR</option>
+                                <option value="FINAL">Final</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Scheduled at *</label>
+                            <input type="datetime-local" id="iv-scheduled">
+                        </div>
+                        <div class="form-group">
+                            <label>Duration (min)</label>
+                            <input type="number" id="iv-duration" min="1" value="60">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="iv-location" placeholder="Google Meet, HCM Office...">
+                        </div>
+                        <div class="form-group">
+                            <label>Result</label>
+                            <select id="iv-result">
+                                <option value="PENDING" selected>Pending</option>
+                                <option value="PASSED">Passed</option>
+                                <option value="FAILED">Failed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Preparation notes</label>
+                        <textarea id="iv-prep" placeholder="Topics to review..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Questions asked</label>
+                        <textarea id="iv-questions" placeholder="What they asked..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>My answers</label>
+                        <textarea id="iv-answers" placeholder="How I answered..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Feedback received</label>
+                        <textarea id="iv-feedback" placeholder="Feedback from interviewer..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('interview-modal')">Cancel</button>
+                <button class="btn-save" id="btn-save-interview" onclick="saveInterview()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offer Modal -->
+    <div class="modal-overlay" id="offer-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <span class="modal-title">Offer details</span>
+                <button class="modal-close" onclick="closeModal('offer-modal')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="offer-modal-error" class="modal-error-box" style="display:none"></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Salary</label>
+                        <input type="number" id="of-salary" placeholder="25000000" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Currency</label>
+                        <select id="of-currency">
+                            <option value="VND">VND</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start date</label>
+                        <input type="date" id="of-start">
+                    </div>
+                    <div class="form-group">
+                        <label>Offer expires</label>
+                        <input type="date" id="of-expires">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Benefits</label>
+                    <textarea id="of-benefits" placeholder="BHYT, BHXH, 13th month bonus..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Note</label>
+                    <textarea id="of-note" placeholder="Negotiation notes..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('offer-modal')">Cancel</button>
+                <button class="btn-save" id="btn-save-offer" onclick="saveOffer()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reminder Modal -->
+    <div class="modal-overlay" id="reminder-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <span class="modal-title" id="reminder-modal-title">Add Reminder</span>
+                <button class="modal-close" onclick="closeModal('reminder-modal')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="reminder-modal-error" class="modal-error-box" style="display:none"></div>
+                <form id="reminder-modal-form" onsubmit="return false">
+                    <div class="form-group">
+                        <label>Remind at *</label>
+                        <input type="datetime-local" id="rm-time">
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea id="rm-message" placeholder="Follow up with HR..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('reminder-modal')">Cancel</button>
+                <button class="btn-save" id="btn-save-reminder" onclick="saveReminder()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Job Modal -->
+    <div class="modal-overlay" id="edit-job-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <span class="modal-title">Edit application</span>
+                <button class="modal-close" onclick="closeModal('edit-job-modal')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="edit-job-modal-error" class="modal-error-box" style="display:none"></div>
+                <div class="form-group">
+                    <label>Position *</label>
+                    <input type="text" id="ej-position" placeholder="Java Backend Developer">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Source</label>
+                        <select id="ej-source">
+                            <option value="LINKEDIN">LinkedIn</option>
+                            <option value="ITVIEC">ITViec</option>
+                            <option value="TOPCV">TopCV</option>
+                            <option value="VIETNAMWORKS">VietnamWorks</option>
+                            <option value="CAREERVIET">CareerViet</option>
+                            <option value="COMPANY_WEBSITE">Company Website</option>
+                            <option value="REFERRAL">Referral</option>
+                            <option value="FACEBOOK">Facebook</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="ej-priority">
+                            <option value="HIGH">High</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="LOW">Low</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Salary min</label>
+                        <input type="number" id="ej-salary-min" placeholder="15000000" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Salary max</label>
+                        <input type="number" id="ej-salary-max" placeholder="25000000" min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Currency</label>
+                        <select id="ej-currency">
+                            <option value="VND">VND</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-top:22px">
+                        <input type="checkbox" id="ej-remote" style="width:auto;accent-color:var(--accent)">
+                        <label for="ej-remote"
+                               style="text-transform:none;font-size:13px;letter-spacing:0;color:var(--text2);cursor:pointer">Remote</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Job URL</label>
+                    <input type="url" id="ej-url" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="ej-notes" placeholder="Your notes..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('edit-job-modal')">Cancel</button>
+                <button class="btn-save" id="btn-save-job" onclick="saveJob()">Save</button>
+            </div>
+        </div>
+    </div>
+
+</th:block>
+
+<th:block layout:fragment="scripts">
+    <!-- JOB_ID từ model attribute, sạch và đáng tin cậy hơn inline JS -->
+    <script th:inline="javascript">
+        window.JOB_ID = /*[[${jobId}]]*/ '';
+    </script>
+    <script th:src="@{/js/job-detail.js}"></script>
+    <script>
+        document.getElementById('page-title').textContent = 'Job Detail';
+    </script>
+</th:block>
+</body>
+</html>

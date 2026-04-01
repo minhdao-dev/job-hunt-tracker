@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+
+<th:block th:fragment="offer">
+    <div class="section-header">
+        <span class="section-title">Offer details</span>
+        <button class="btn-add" id="btn-add-offer" onclick="openModal('offer-modal')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add offer
+        </button>
+    </div>
+
+    <div id="offer-content">
+        <div class="tab-empty" id="offer-empty">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                      d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+            </svg>
+            <strong>No offer yet</strong>
+            <span>Add when you receive an offer</span>
+        </div>
+
+        <div class="offer-card" id="offer-card" style="display:none">
+            <div class="offer-salary" id="offer-salary">—</div>
+            <div class="offer-currency" id="offer-currency">VND</div>
+            <div class="offer-grid">
+                <div class="offer-field">
+                    <label>Start date</label>
+                    <span id="offer-start">—</span>
+                </div>
+                <div class="offer-field">
+                    <label>Offer expires</label>
+                    <span id="offer-expires">—</span>
+                </div>
+                <div class="offer-field" style="grid-column: span 2">
+                    <label>Benefits</label>
+                    <span id="offer-benefits" style="color:var(--text3);font-style:italic">—</span>
+                </div>
+                <div class="offer-field" style="grid-column: span 2">
+                    <label>Note</label>
+                    <span id="offer-note" style="color:var(--text3)">—</span>
+                </div>
+            </div>
+
+            <div class="offer-decision-btns">
+                <button class="decision-btn ACCEPTED" onclick="updateOfferDecision('ACCEPTED')">✓ Accept</button>
+                <button class="decision-btn NEGOTIATING" onclick="updateOfferDecision('NEGOTIATING')">↔ Negotiate
+                </button>
+                <button class="decision-btn REJECTED" onclick="updateOfferDecision('REJECTED')">✕ Decline</button>
+                <button class="decision-btn PENDING" onclick="updateOfferDecision('PENDING')">⏳ Pending</button>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</body>
+</html>

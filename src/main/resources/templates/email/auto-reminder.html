@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{email/layout}">
+<body>
+<th:block layout:fragment="content">
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td align="center" style="padding-bottom:24px">
+                <div style="display:inline-block;width:60px;height:60px;background-color:#fffbeb;border-radius:12px;font-size:28px;text-align:center;line-height:60px">
+                    ⏰
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <h1 style="margin:0 0 6px 0;font-size:22px;font-weight:700;color:#111827;letter-spacing:-0.02em;line-height:1.3">
+        Đừng để nguội cơ hội!
+    </h1>
+    <p style="margin:0 0 18px 0;font-size:14px;color:#6b7280;line-height:1.6">
+        Xin chào <strong style="color:#111827" th:text="${fullName}">bạn</strong>,
+    </p>
+
+    <p style="margin:0 0 20px 0;font-size:14px;color:#374151;line-height:1.8">
+        Vị trí <strong style="color:#6366f1" th:text="${position}">Java Developer</strong>
+        chưa có cập nhật trong
+        <strong style="color:#d97706" th:text="${daysSinceUpdate}">7</strong> ngày.
+        Đừng quên follow up với nhà tuyển dụng nhé!
+    </p>
+
+    <!-- Tips -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px">
+        <tr>
+            <td style="background-color:#fffbeb;border-left:4px solid #d97706;border-radius:6px;padding:14px 16px">
+                <p style="margin:0 0 8px 0;font-size:12px;font-weight:700;color:#92400e;letter-spacing:0.06em;text-transform:uppercase">
+                    💬 Gợi ý follow up</p>
+                <p style="margin:0;font-size:13px;color:#78716c;line-height:1.8;font-style:italic">
+                    "Xin chào, tôi muốn hỏi về tình trạng đơn ứng tuyển vị trí [position].
+                    Tôi vẫn rất hứng thú và mong nhận được phản hồi từ quý công ty."
+                </p>
+            </td>
+        </tr>
+    </table>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td style="border-top:1px solid #e5e7eb;padding-bottom:20px"></td>
+        </tr>
+    </table>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td style="background-color:#f5f3ff;border-left:4px solid #6366f1;border-radius:6px;padding:12px 16px">
+                <p style="margin:0;font-size:13px;color:#374151;line-height:1.7">
+                    💡 Tắt nhắc nhở tự động tại <strong>Settings → Notifications → Auto reminders</strong>.
+                </p>
+            </td>
+        </tr>
+    </table>
+
+</th:block>
+</body>
+</html>

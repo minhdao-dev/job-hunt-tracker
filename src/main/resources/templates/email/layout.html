@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Job Hunt Tracker</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f2f2f7">
+
+<!-- Outer -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f2f2f7">
+    <tr>
+        <td align="center" style="padding:40px 16px">
+
+            <!-- Card -->
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0"
+                   style="width:100%;max-width:520px;background-color:#ffffff;border-radius:12px;border:1px solid #dcdce4;overflow:hidden">
+
+                <!-- HEADER -->
+                <tr>
+                    <td align="center" bgcolor="#6366f1"
+                        style="background-color:#6366f1;padding:28px 40px;text-align:center">
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+                            <tr>
+                                <td align="center" valign="middle" style="padding-right:8px">
+                                    <div style="width:34px;height:34px;background-color:rgba(255,255,255,0.25);border-radius:8px;font-size:18px;text-align:center;line-height:34px">
+                                        💼
+                                    </div>
+                                </td>
+                                <td align="left" valign="middle">
+                                    <span style="font-family:'Courier New',monospace;font-size:14px;font-weight:700;color:#ffffff;letter-spacing:2px">JOB HUNT TRACKER</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- BODY -->
+                <tr>
+                    <td align="left" style="padding:36px 40px 28px 40px;background-color:#ffffff">
+                        <th:block layout:fragment="content"></th:block>
+                    </td>
+                </tr>
+
+                <!-- FOOTER -->
+                <tr>
+                    <td align="center" bgcolor="#f8f8fb"
+                        style="background-color:#f8f8fb;padding:18px 40px;border-top:1px solid #e4e4ed">
+                        <p style="margin:0;font-size:12px;color:#a0a0b8;line-height:1.7;text-align:center">
+                            © 2026 Job Hunt Tracker &nbsp;·&nbsp; Bạn nhận email này vì đã đăng ký tài khoản.
+                        </p>
+                    </td>
+                </tr>
+
+            </table>
+            <!-- /Card -->
+
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
