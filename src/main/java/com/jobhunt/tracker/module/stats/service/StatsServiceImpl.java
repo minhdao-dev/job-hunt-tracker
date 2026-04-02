@@ -1,6 +1,7 @@
 package com.jobhunt.tracker.module.stats.service;
 
 import com.jobhunt.tracker.module.interview.repository.InterviewRepository;
+import com.jobhunt.tracker.module.job.entity.JobStatus;
 import com.jobhunt.tracker.module.job.repository.JobApplicationRepository;
 import com.jobhunt.tracker.module.offer.repository.OfferRepository;
 import com.jobhunt.tracker.module.reminder.repository.ReminderRepository;
@@ -34,7 +35,10 @@ public class StatsServiceImpl implements StatsService {
         long totalJobs = jobRepository.countByStatus(userId)
                 .stream().mapToLong(r -> (Long) r[1]).sum();
 
-        long activeJobs = jobRepository.countActiveJobs(userId);
+        long activeJobs = jobRepository.countActiveJobs(
+                userId,
+                List.of(JobStatus.APPLIED, JobStatus.INTERVIEWING, JobStatus.OFFERED)
+        );
 
         long totalInterviews = interviewRepository.countByResult(userId)
                 .stream().mapToLong(r -> (Long) r[1]).sum();
@@ -65,10 +69,10 @@ public class StatsServiceImpl implements StatsService {
     @Override
     @Transactional(readOnly = true)
     public JobStatsResponse getJobStats(UUID userId) {
-        long total = jobRepository.countByStatus(userId)
-                .stream().mapToLong(r -> (Long) r[1]).sum();
+        List<Object[]> statusRows = jobRepository.countByStatus(userId);
 
-        Map<String, Long> byStatus = toMap(jobRepository.countByStatus(userId));
+        long total = statusRows.stream().mapToLong(r -> (Long) r[1]).sum();
+        Map<String, Long> byStatus = toMap(statusRows);
         Map<String, Long> bySource = toMap(jobRepository.countBySource(userId));
         Map<String, Long> byPriority = toMap(jobRepository.countByPriority(userId));
 
@@ -78,15 +82,14 @@ public class StatsServiceImpl implements StatsService {
     @Override
     @Transactional(readOnly = true)
     public InterviewStatsResponse getInterviewStats(UUID userId) {
-        long total = interviewRepository.countByResult(userId)
-                .stream().mapToLong(r -> (Long) r[1]).sum();
+        List<Object[]> resultRows = interviewRepository.countByResult(userId);  // gọi 1 lần
 
-        Map<String, Long> byResult = toMap(interviewRepository.countByResult(userId));
+        long total = resultRows.stream().mapToLong(r -> (Long) r[1]).sum();
+        Map<String, Long> byResult = toMap(resultRows);
         Map<String, Long> byType = toMap(interviewRepository.countByType(userId));
 
         long totalJobs = jobRepository.countByStatus(userId)
                 .stream().mapToLong(r -> (Long) r[1]).sum();
-
         double responseRate = totalJobs == 0 ? 0.0
                 : round((double) interviewRepository.countDistinctJobsWithInterview(userId)
                 / totalJobs * 100);

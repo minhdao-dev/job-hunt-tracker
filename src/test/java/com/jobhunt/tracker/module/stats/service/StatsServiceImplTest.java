@@ -64,7 +64,7 @@ class StatsServiceImplTest {
                 new Object[]{"MEDIUM", 6L},
                 new Object[]{"LOW", 2L}
         ));
-        given(jobRepository.countActiveJobs(userId)).willReturn(9L);
+//        given(jobRepository.countActiveJobs(userId)).willReturn(9L);
         given(interviewRepository.countByResult(userId)).willReturn(rows(
                 new Object[]{"PASSED", 2L},
                 new Object[]{"FAILED", 1L},

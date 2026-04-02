@@ -90,7 +90,20 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
             SELECT COUNT(j) FROM JobApplication j
             WHERE j.user.id = :userId
               AND j.deletedAt IS NULL
-              AND j.status IN ('APPLIED', 'INTERVIEWING', 'OFFERED')
+              AND j.status IN :statuses
             """)
-    long countActiveJobs(UUID userId);
+    long countActiveJobs(UUID userId, List<JobStatus> statuses);
+
+    @Query("""
+            SELECT j FROM JobApplication j
+            LEFT JOIN FETCH j.company
+            WHERE j.user.id = :userId
+              AND j.deletedAt IS NULL
+              AND j.status = :status
+              AND (
+                LOWER(j.position) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(j.company.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+              )
+            """)
+    Page<JobApplication> searchByKeywordAndStatus(UUID userId, String keyword, JobStatus status, Pageable pageable);
 }

@@ -1,6 +1,8 @@
 package com.jobhunt.tracker.module.reminder.scheduler;
 
 import com.jobhunt.tracker.config.mail.EmailService;
+import com.jobhunt.tracker.module.auth.repository.OtpTokenRepository;
+import com.jobhunt.tracker.module.auth.repository.RefreshTokenRepository;
 import com.jobhunt.tracker.module.job.entity.JobApplication;
 import com.jobhunt.tracker.module.job.entity.JobStatus;
 import com.jobhunt.tracker.module.job.repository.JobApplicationRepository;
@@ -25,6 +27,8 @@ public class ReminderScheduler {
     private final ReminderRepository reminderRepository;
     private final JobApplicationRepository jobRepository;
     private final UserSettingsRepository userSettingsRepository;
+    private final OtpTokenRepository otpTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final EmailService emailService;
 
     @Scheduled(cron = "${app.reminder.cron}")
@@ -33,26 +37,47 @@ public class ReminderScheduler {
         List<Reminder> pending = reminderRepository.findPendingReminders(LocalDateTime.now());
 
         if (pending.isEmpty()) {
-            log.debug("No pending manual reminders to send");
+            log.debug("No pending manual reminders");
             return;
         }
 
-        log.info("Sending {} manual reminder(s)", pending.size());
+        log.info("Processing {} manual reminder(s)", pending.size());
 
         for (Reminder reminder : pending) {
             try {
                 JobApplication job = reminder.getJob();
-                String email = job.getUser().getEmail();
-                String fullName = job.getUser().getFullName();
 
-                emailService.sendReminderEmail(email, fullName, job.getPosition(), reminder.getMessage());
+                // ── Fix: check emailNotifications setting ──
+                boolean emailEnabled = userSettingsRepository
+                        .findByUserId(job.getUser().getId())
+                        .map(UserSettings::getEmailNotifications)
+                        .orElse(true);
 
+                if (!emailEnabled) {
+                    reminder.setIsSent(true);
+                    reminderRepository.save(reminder);
+                    continue;
+                }
+
+                // ── Fix: mark sent TRƯỚC khi gửi → nếu email fail thì log,
+                //    nhưng không gửi duplicate. Chấp nhận trade-off này.
+                //    Nếu cần guarantee delivery → dùng outbox pattern.
                 reminder.setIsSent(true);
                 reminderRepository.save(reminder);
 
-                log.info("Manual reminder sent to: {} for job: {}", email, job.getPosition());
+                emailService.sendReminderEmail(
+                        job.getUser().getEmail(),
+                        job.getUser().getFullName(),
+                        job.getPosition(),
+                        reminder.getMessage()
+                );
+
+                log.info("Manual reminder sent to: {} for job: {}",
+                        job.getUser().getEmail(), job.getPosition());
+
             } catch (Exception e) {
-                log.error("Failed to send manual reminder id={}: {}", reminder.getId(), e.getMessage());
+                log.error("Failed to process manual reminder id={}: {}",
+                        reminder.getId(), e.getMessage());
             }
         }
     }
@@ -69,26 +94,57 @@ public class ReminderScheduler {
             return;
         }
 
-        log.info("Sending auto reminders for {} stale job(s)", staleJobs.size());
-
         for (JobApplication job : staleJobs) {
             try {
-                int reminderAfterDays = userSettingsRepository
+                UserSettings settings = userSettingsRepository
                         .findByUserId(job.getUser().getId())
-                        .map(UserSettings::getReminderAfterDays)
-                        .orElse(7);
+                        .orElse(null);
 
-                if (job.getUpdatedAt().isBefore(LocalDateTime.now().minusDays(reminderAfterDays))) {
-                    String email = job.getUser().getEmail();
-                    String fullName = job.getUser().getFullName();
+                // ── Fix #14: check reminderEnabled ──
+                boolean reminderEnabled = settings != null
+                        ? settings.getReminderEnabled()
+                        : true;
 
-                    emailService.sendAutoReminderEmail(email, fullName, job.getPosition(), reminderAfterDays);
+                if (!reminderEnabled) continue;
 
-                    log.info("Auto reminder sent to: {} for job: {}", email, job.getPosition());
+                // ── Fix: check emailNotifications ──
+                boolean emailEnabled = settings != null
+                        ? settings.getEmailNotifications()
+                        : true;
+
+                if (!emailEnabled) continue;
+
+                int reminderAfterDays = settings != null
+                        ? settings.getReminderAfterDays()
+                        : 7;
+
+                if (job.getUpdatedAt().isBefore(
+                        LocalDateTime.now().minusDays(reminderAfterDays))) {
+
+                    emailService.sendAutoReminderEmail(
+                            job.getUser().getEmail(),
+                            job.getUser().getFullName(),
+                            job.getPosition(),
+                            reminderAfterDays
+                    );
+
+                    log.info("Auto reminder sent to: {} for job: {}",
+                            job.getUser().getEmail(), job.getPosition());
                 }
+
             } catch (Exception e) {
-                log.error("Failed to send auto reminder for job id={}: {}", job.getId(), e.getMessage());
+                log.error("Failed to send auto reminder for job id={}: {}",
+                        job.getId(), e.getMessage());
             }
         }
+    }
+
+    // ── Fix #8: cleanup expired tokens ──
+    @Scheduled(cron = "0 0 3 * * *")
+    @Transactional
+    public void cleanupExpiredTokens() {
+        otpTokenRepository.deleteExpiredAndUsed();
+        refreshTokenRepository.deleteExpiredAndRevoked();
+        log.info("Expired OTP tokens and refresh tokens cleaned up");
     }
 }
