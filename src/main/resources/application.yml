@@ -18,18 +18,6 @@ spring:
         default_schema: app
         format_sql: false
 
-  mail:
-    host: smtp.sendgrid.net
-    port: 587
-    username: apikey
-    password: ${SENDGRID_API_KEY}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -57,6 +45,8 @@ app:
     refresh-token-max-age: 604800
     secure: false
   mail:
-    from: ${MAIL_USERNAME}
+    from: ${MAIL_FROM:noreply@jobhunt.local}
+  sendgrid:
+    api-key: ${SENDGRID_API_KEY:disabled}
   reminder:
     cron: "0 0 9 * * *"

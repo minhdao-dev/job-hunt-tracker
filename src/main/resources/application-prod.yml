@@ -21,18 +21,6 @@ spring:
         default_schema: app
         format_sql: false
 
-  mail:
-    host: smtp.sendgrid.net
-    port: 587
-    username: apikey
-    password: ${SENDGRID_API_KEY}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-
   data:
     redis:
       host: ${REDIS_HOST}
@@ -54,6 +42,8 @@ server:
 app:
   mail:
     from: ${MAIL_FROM}
+  sendgrid:
+    api-key: ${SENDGRID_API_KEY}
   jwt:
     secret: ${JWT_SECRET}
     expiration: 900000
