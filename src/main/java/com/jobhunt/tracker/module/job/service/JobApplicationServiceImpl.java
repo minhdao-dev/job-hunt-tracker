@@ -71,20 +71,27 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<JobApplicationResponse> getAll(UUID userId, JobStatus status,
-                                               String keyword, Pageable pageable) {
-        if (keyword != null && !keyword.isBlank()) {
+    public Page<JobApplicationResponse> getAll(
+            UUID userId, JobStatus status, String keyword, Pageable pageable) {
+
+        boolean hasKeyword = keyword != null && !keyword.isBlank();
+        boolean hasStatus = status != null;
+
+        if (hasKeyword && hasStatus) {
+            return jobRepository
+                    .searchByKeywordAndStatus(userId, keyword.trim(), status, pageable)
+                    .map(this::toResponse);
+        }
+        if (hasKeyword) {
             return jobRepository
                     .searchByKeyword(userId, keyword.trim(), pageable)
                     .map(this::toResponse);
         }
-
-        if (status != null) {
+        if (hasStatus) {
             return jobRepository
                     .findAllByUserIdAndStatus(userId, status, pageable)
                     .map(this::toResponse);
         }
-
         return jobRepository
                 .findAllByUserId(userId, pageable)
                 .map(this::toResponse);

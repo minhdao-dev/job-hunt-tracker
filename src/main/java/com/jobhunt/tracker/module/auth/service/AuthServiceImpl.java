@@ -351,6 +351,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private void blacklistAccessToken(String accessToken) {
+        if (accessToken == null) {
+            return;
+        }
+
         if (accessToken.isBlank()) {
             return;
         }

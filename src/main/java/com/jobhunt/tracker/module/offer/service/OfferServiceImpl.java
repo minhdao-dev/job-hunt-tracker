@@ -8,6 +8,7 @@ import com.jobhunt.tracker.module.offer.dto.OfferResponse;
 import com.jobhunt.tracker.module.offer.dto.UpdateOfferDecisionRequest;
 import com.jobhunt.tracker.module.offer.dto.UpdateOfferRequest;
 import com.jobhunt.tracker.module.offer.entity.Offer;
+import com.jobhunt.tracker.module.offer.entity.OfferDecision;
 import com.jobhunt.tracker.module.offer.repository.OfferRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -89,13 +90,16 @@ public class OfferServiceImpl implements OfferService {
             );
         }
 
+        OfferDecision oldDecision = offer.getDecision();
         offer.setDecision(request.decision());
         if (request.note() != null) offer.setNote(request.note());
 
         offer = offerRepository.save(offer);
 
         log.info("Offer decision updated: {} → {} for job: {}",
-                offer.getDecision(), request.decision(), jobId);
+                oldDecision,
+                request.decision(),
+                jobId);
 
         return toResponse(offer);
     }
