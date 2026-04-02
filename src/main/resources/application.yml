@@ -18,18 +18,6 @@ spring:
         default_schema: app
         format_sql: false
 
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -56,5 +44,9 @@ app:
     refresh-token-path: /api/v1/auth
     refresh-token-max-age: 604800
     secure: false
+  mail:
+    from: ${MAIL_FROM:noreply@jobhunt.local}
+  sendgrid:
+    api-key: ${SENDGRID_API_KEY:disabled}
   reminder:
     cron: "0 0 9 * * *"
