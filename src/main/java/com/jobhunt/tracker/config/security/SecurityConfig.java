@@ -44,7 +44,8 @@ public class SecurityConfig {
                                 "/reset-password",
                                 "/css/**",
                                 "/js/**",
-                                "/images/**"
+                                "/images/**",
+                                "/actuator/health"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
